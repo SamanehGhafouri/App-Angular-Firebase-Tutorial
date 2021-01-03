@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "matfire-35afc": {
+      "hosting": {
+        "App-Angular-Firebase": [
+          "matfire-35afc"
+        ]
+      }
+    }
+  }
+}

@@ -119,6 +119,10 @@
               "devServerTarget": "App-Angular-Firebase:serve:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "@angular/fire:deploy",
+          "options": {}
         }
       }
     }
