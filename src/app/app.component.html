@@ -1,6 +1,6 @@
 <mat-toolbar color="primary">
   <mat-icon>local_fire_department</mat-icon>
-  <span>Fire Department</span>
+  <span>Fire App</span>
 </mat-toolbar>
 <!--<app-task *ngFor="let task of todo" [task]="task"></app-task>-->
 <div class="content-wrapper">
@@ -18,9 +18,9 @@
       [cdkDropListConnectedTo]="[doneList, inProgressList]"
       (cdkDropListDropped)="drop($event)"
       class="list">
-      <p class="empty-label" *ngIf="todo.length === 0">Empty list</p>
+      <p class="empty-label" *ngIf="(todo | async)?.length === 0">Empty list</p>
       <app-task (edit)="editTask('todo', $event)"
-                *ngFor="let task of todo" cdkDrag [task]="task"></app-task>
+                *ngFor="let task of todo | async" cdkDrag [task]="task"></app-task>
     </mat-card>
   </div>
   <div class="container">
@@ -33,9 +33,9 @@
       [cdkDropListConnectedTo]="[todoList, doneList]"
       (cdkDropListDropped)="drop($event)"
       class="list">
-      <p class="empty-label" *ngIf="inProgress.length === 0">Empty list</p>
+      <p class="empty-label" *ngIf="(inProgress | async)?.length === 0">Empty list</p>
       <app-task (edit)="editTask('inProgress', $event)"
-                *ngFor="let task of inProgress" cdkDrag [task]="task"></app-task>
+                *ngFor="let task of inProgress | async" cdkDrag [task]="task"></app-task>
     </mat-card>
   </div>
   <div class="container">
@@ -48,8 +48,8 @@
       [cdkDropListConnectedTo]="[todoList, inProgressList]"
       (cdkDropListDropped)="drop($event)"
       class="list">
-      <p class="empty-label" *ngIf="done.length === 0">Empty list</p>
-      <app-task (edit)="editTask('done', $event)" *ngFor="let task of done" cdkDrag [task]="task"></app-task>
+      <p class="empty-label" *ngIf="(done | async).length === 0">Empty list</p>
+      <app-task (edit)="editTask('done', $event)" *ngFor="let task of done | async" cdkDrag [task]="task"></app-task>
     </mat-card>
   </div>
 

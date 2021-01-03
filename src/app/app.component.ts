@@ -4,6 +4,7 @@ import {CdkDragDrop, transferArrayItem} from "@angular/cdk/drag-drop";
 import {MatDialog} from "@angular/material/dialog";
 import {TaskDialogComponent} from "./task-dialog/task-dialog.component";
 import {TaskDialogResult} from "./task-dialog/task-dialog.component";
+import {AngularFirestore} from "@angular/fire/firestore";
 
 
 @Component({
@@ -12,19 +13,21 @@ import {TaskDialogResult} from "./task-dialog/task-dialog.component";
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-
-  todo: Task[] = [
-    {
-      title: 'Buy milk',
-      description: 'Go to the store and buy milk'
-    },
-    {
-      title: 'Create an app',
-      description: 'Using Firebase and Angular create an app!'
-    }
-  ];
-  inProgress: Task[] =[];
-  done: Task[] = [];
+  todo = this.store.collection('todo').valueChanges({ idField: 'id'});
+  inProgress = this.store.collection('inprogress').valueChanges({ idField: 'id'});
+  done = this.store.collection('done').valueChanges({idField: 'id'});
+  // todo: Task[] = [
+  //   {
+  //     title: 'Buy milk',
+  //     description: 'Go to the store and buy milk'
+  //   },
+  //   {
+  //     title: 'Create an app',
+  //     description: 'Using Firebase and Angular create an app!'
+  //   }
+  // ];
+  // inProgress: Task[] =[];
+  // done: Task[] = [];
 
   editTask(list: 'done' | 'todo' | 'inProgress', task: Task): void{
     const dialogRef = this.dialog.open(TaskDialogComponent, {
@@ -35,13 +38,14 @@ export class AppComponent {
       },
     });
     dialogRef.afterClosed().subscribe((result: TaskDialogResult) => {
-      const dataList = this[list];
-      const taskIndex = dataList.indexOf(task);
+      // const dataList = this[list];
+      // const taskIndex = dataList.indexOf(task);
       if (result.delete){
-        dataList.splice(taskIndex, 1);
+        this.store.collection(list).doc(task.id).delete();
+        // dataList.splice(taskIndex, 1);
       }
       else {
-        dataList[taskIndex] = task;
+        this.store.collection(list).doc(task.id).update(task);
       }
     });
   }
@@ -50,6 +54,15 @@ export class AppComponent {
     if(event.previousContainer === event.container){
       return;
     }
+    const item = event.previousContainer.data[event.previousIndex];
+    this.store.firestore.runTransaction(() => {
+      const promise = Promise.all([
+        this.store.collection(event.previousContainer.id).doc(item.id).delete(),
+        this.store.collection(event.container.id).add(item),
+      ]);
+      return promise;
+    });
+
     transferArrayItem(
       event.previousContainer.data,
       event.container.data,
@@ -57,7 +70,7 @@ export class AppComponent {
       event.currentIndex
     );
   }
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog, private store: AngularFirestore) {}
   newTask():void{
     const dialogRef = this.dialog.open(TaskDialogComponent, {
       width: '270px',
@@ -67,6 +80,7 @@ export class AppComponent {
     });
     dialogRef
       .afterClosed()
-      .subscribe((result: TaskDialogResult) => this.todo.push(result.task));
+      // .subscribe((result: TaskDialogResult) => this.todo.push(result.task));
+      .subscribe((result: TaskDialogResult) => this.store.collection('todo').add(result.task));
   }
 }
